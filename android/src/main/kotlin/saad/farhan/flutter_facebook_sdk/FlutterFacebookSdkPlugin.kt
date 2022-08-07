@@ -40,7 +40,6 @@ class FlutterFacebookSdkPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
     private lateinit var logger: AppEventsLogger
 
 
-    private var deepLinkUrl: String = "Saad Farhan"
     private var PLATFORM_CHANNEL: String = "flutter_facebook_sdk/methodChannel"
     private var EVENTS_CHANNEL: String = "flutter_facebook_sdk/eventChannel"
     private var queuedLinks: List<String> = emptyList()
@@ -85,7 +84,17 @@ class FlutterFacebookSdkPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 result.success("Android ${android.os.Build.VERSION.RELEASE}")
             }
             "getDeepLinkUrl" -> {
-                result.success(deepLinkUrl)
+                ar bundle = activityPluginBinding !!. activity . intent . getBundleExtra ("al_applink_data")
+                var deepLink: String? = null
+                if (bundle != null) {
+                    var targetUrl = bundle.getString("target_url")
+                    if (targetUrl != null) {
+                        deepLink = targetUrl
+
+                    }
+
+                }
+                result.success(deepLink)
             }
             "logViewedContent", "logAddToCart", "logAddToWishlist" -> {
                 val args = call.arguments as HashMap<String, Any>
@@ -116,41 +125,11 @@ class FlutterFacebookSdkPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 val args = call.arguments as HashMap<String, Any>
                 logGenericEvent(args)
             }
-            "logRated" -> {
-                logger.logEvent(AppEventsConstants.EVENT_NAME_RATED)
+            "setUserID" -> {
+                handleSetUserId(call, result)
             }
-            "logDonate" -> {
-                logger.logEvent(AppEventsConstants.EVENT_NAME_DONATE)
-            }
-            "logContact" -> {
-                logger.logEvent(AppEventsConstants.EVENT_NAME_CONTACT)
-            }
-            "logRefinement" -> {
-                logger.logEvent(AppEventsConstants.EVENT_NAME_START_TRIAL)
-            }
-            "logCare" -> {
-                logger.logEvent(AppEventsConstants.EVENT_NAME_SPENT_CREDITS)
-            }
-            "logSubscribe" -> {
-                logger.logEvent(AppEventsConstants.EVENT_NAME_SUBSCRIBE)
-            }
-            "logCashFund" -> {
-                logger.logEvent(AppEventsConstants.EVENT_NAME_PURCHASED)
-            }
-            "logSellVehicle" -> {
-                logger.logEvent(AppEventsConstants.EVENT_NAME_CUSTOMIZE_PRODUCT)
-            }
-            "logFundingServices" -> {
-                logger.logEvent(AppEventsConstants.EVENT_NAME_LEVEL_ACHIEVED)
-            }
-            "logAddProvider" -> {
-                logger.logEvent(AppEventsConstants.EVENT_NAME_FIND_LOCATION)
-            }
-            "logRenewSTNK" -> {
-                logger.logEvent(AppEventsConstants.EVENT_NAME_ADDED_TO_CART)
-            }
-            "logMyVehicle" -> {
-                logger.logEvent(AppEventsConstants.EVENT_NAME_VIEWED_CONTENT)
+            "clearUserID" -> {
+                handleClearUserId(call, result)
             }
             else -> {
                 result.notImplemented()
@@ -158,19 +137,30 @@ class FlutterFacebookSdkPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
         }
     }
 
-    private fun logGenericEvent(args : HashMap<String, Any>){
+    private fun handleSetUserId(call: MethodCall, result: Result) {
+        val args = call.arguments as HashMap<String, Any>
+        AppEventsLogger.setUserID(args["id"].toString())
+        result.success(null)
+    }
+
+    private fun handleClearUserId(call: MethodCall, result: Result) {
+        AppEventsLogger.clearUserID()
+        result.success(null)
+    }
+
+    private fun logGenericEvent(args: HashMap<String, Any>) {
         val eventName = args["eventName"] as? String
         val valueToSum = args["valueToSum"] as? Double
         val parameters = args["parameters"] as? HashMap<String, Any>
         if (valueToSum != null && parameters != null) {
             val parameterBundle = createBundleFromMap(args["parameters"] as HashMap<String, Any>)
             logger.logEvent(eventName, valueToSum, parameterBundle)
-        }else if(parameters != null){
+        } else if (parameters != null) {
             val parameterBundle = createBundleFromMap(args["parameters"] as HashMap<String, Any>)
             logger.logEvent(eventName, parameterBundle)
-        }else if(valueToSum != null){
+        } else if (valueToSum != null) {
             logger.logEvent(eventName, valueToSum)
-        }else{
+        } else {
             logger.logEvent(eventName)
         }
     }
@@ -220,25 +210,27 @@ class FlutterFacebookSdkPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
     }
 
     private fun initFbSdk() {
-        FacebookSdk.setAutoInitEnabled(true)
-        FacebookSdk.fullyInitialize()
-        logger = AppEventsLogger.newLogger(context)
+        if (context != null) {
+            FacebookSdk.setAutoInitEnabled(true)
+            FacebookSdk.fullyInitialize()
+            logger = AppEventsLogger.newLogger(context!!)
 
-        val targetUri = AppLinks.getTargetUrlFromInboundIntent(context, activityPluginBinding!!.activity.intent)
-        AppLinkData.fetchDeferredAppLinkData(context, object : AppLinkData.CompletionHandler {
-            override fun onDeferredAppLinkDataFetched(appLinkData: AppLinkData?) {
 
-                if (appLinkData == null) {
-                    return;
+            AppLinkData.fetchDeferredAppLinkData(context, object : AppLinkData.CompletionHandler {
+                override fun onDeferredAppLinkDataFetched(appLinkData: AppLinkData?) {
+
+                    if (appLinkData == null) {
+                        return;
+                    }
+
+                    var deepLinkUrl = appLinkData.targetUri.toString();
+                    if (eventSink != null) {
+                        eventSink!!.success(deepLinkUrl)
+                    }
                 }
 
-                deepLinkUrl = appLinkData.targetUri.toString();
-                if (eventSink != null && deepLinkUrl != null) {
-                    eventSink!!.success(deepLinkUrl)
-                }
-            }
-
-        })
+            })
+        }
     }
 
     private fun createBundleFromMap(parameterMap: Map<String, Any>?): Bundle? {
