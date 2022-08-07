@@ -98,7 +98,7 @@ public class SwiftFlutterFacebookSdkPlugin: NSObject, FlutterPlugin, FlutterStre
     }
     
     func logPurchase(amount: Double, currency: String, parameters: [String: Any]) {
-        AppEvents.shared.logPurchase(amount: amount, currency: currency, parameters: parameters)
+        AppEvents.shared.logPurchase(amount: amount, currency: currency)
     }
     
     func logSearchEvent(
@@ -177,21 +177,21 @@ public class SwiftFlutterFacebookSdkPlugin: NSObject, FlutterPlugin, FlutterStre
 //                ,
 //               let appURLSchemeSuffix = myArgs["appURLSchemeSuffix"] as? String
             {
-                print("Start")
-                print(Settings.shared.appID)
-                print(Settings.shared.displayName)
-                print(Settings.shared.clientToken)
-                print(Settings.shared.appURLSchemeSuffix)
+//                print("Start")
+//                print(Settings.shared.appID)
+//                print(Settings.shared.displayName)
+//                print(Settings.shared.clientToken)
+//                print(Settings.shared.appURLSchemeSuffix)
                 Settings.shared.appID = appId
                 Settings.shared.displayName = displayName
                 Settings.shared.clientToken = clientToken
 //                Settings.shared.appURLSchemeSuffix = 'fb'
                 ApplicationDelegate.shared.initializeSDK()
-                print("End")
-                print(Settings.shared.appID)
-                print(Settings.shared.displayName)
-                print(Settings.shared.clientToken)
-                print(Settings.shared.appURLSchemeSuffix)
+//                print("End")
+//                print(Settings.shared.appID)
+//                print(Settings.shared.displayName)
+//                print(Settings.shared.clientToken)
+//                print(Settings.shared.appURLSchemeSuffix)
                 result(true)
                 return
             } else {
