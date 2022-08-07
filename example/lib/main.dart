@@ -16,7 +16,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _deepLinkUrl = 'Unknown';
-  FlutterFacebookSdk? facebookDeepLinks;
+  FlutterFacebookSdk? fbSdk;
   bool isAdvertisingTrackingEnabled = false;
 
   @override
@@ -30,13 +30,20 @@ class _MyAppState extends State<MyApp> {
     String? deepLinkUrl;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      facebookDeepLinks = FlutterFacebookSdk();
-      facebookDeepLinks!.onDeepLinkReceived!.listen((event) {
+      fbSdk = FlutterFacebookSdk();
+      if (Platform.isIOS) {
+        var res = await fbSdk!.initializeSDK(
+            appId: '2363413603901188',
+            displayName: 'text.example',
+            clientToken: '16372fbab7af3d283aedadbd0c5eae1a');
+        print('res $res');
+      }
+      fbSdk!.onDeepLinkReceived!.listen((event) {
         setState(() {
           _deepLinkUrl = event;
         });
       });
-      deepLinkUrl = await facebookDeepLinks!.getDeepLinkUrl;
+      deepLinkUrl = await fbSdk!.getDeepLinkUrl;
       setState(() {
         _deepLinkUrl = deepLinkUrl!;
       });
@@ -45,7 +52,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> logViewContent() async {
-    await facebookDeepLinks!.logViewedContent(
+    await fbSdk!.logViewedContent(
         contentType: "Product",
         contentData: "Nestle Milkpak",
         contentId: "NST135",
@@ -54,7 +61,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> logAddToCart() async {
-    await facebookDeepLinks!.logAddToCart(
+    await fbSdk!.logAddToCart(
         contentType: "Product",
         contentData: "Nestle Milkpak",
         contentId: "NST135",
@@ -63,7 +70,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> logAddToWishlist() async {
-    await facebookDeepLinks!.logAddToWishlist(
+    await fbSdk!.logAddToWishlist(
         contentType: "Product",
         contentData: "Nestle Milkpak",
         contentId: "NST135",
@@ -72,23 +79,22 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> logPurchase() async {
-    await facebookDeepLinks!.logPurhcase(amount: 669, currency: "PKR", params: {
+    await fbSdk!.logPurhcase(amount: 669, currency: "PKR", params: {
       'content-type': "product_group",
       'num-items': 56,
     });
   }
 
   Future<void> logCompleteRegistration() async {
-    await facebookDeepLinks!
-        .logCompleteRegistration(registrationMethod: "Number");
+    await fbSdk!.logCompleteRegistration(registrationMethod: "Number");
   }
 
   Future<void> logActivateApp() async {
-    await facebookDeepLinks!.logActivateApp();
+    await fbSdk!.logActivateApp();
   }
 
   Future<void> logSearch() async {
-    await facebookDeepLinks!.logSearch(
+    await fbSdk!.logSearch(
         contentType: "Product",
         contentData: "Nestle Milkpak",
         contentId: "NST135",
@@ -97,7 +103,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> logInitiateCheckout() async {
-    await facebookDeepLinks!.logInitiateCheckout(
+    await fbSdk!.logInitiateCheckout(
       contentType: "Product",
       contentData: "Nestle Milkpak",
       contentId: "NST135",
@@ -112,12 +118,12 @@ class _MyAppState extends State<MyApp> {
       {required String eventName,
       double? valueToSum,
       dynamic? parameters}) async {
-    await facebookDeepLinks!.logEvent(
+    await fbSdk!.logEvent(
         eventName: eventName, parameters: parameters, valueToSum: valueToSum);
   }
 
   Future<void> setAdvertiserTracking() async {
-    await facebookDeepLinks!
+    await fbSdk!
         .setAdvertiserTracking(isEnabled: !isAdvertisingTrackingEnabled);
     setState(() {
       isAdvertisingTrackingEnabled = !isAdvertisingTrackingEnabled;

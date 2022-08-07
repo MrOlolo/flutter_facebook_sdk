@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/services.dart';
 
 /// A singleton class for plugin
@@ -54,15 +55,36 @@ class FlutterFacebookSdk {
   }
 
   /// InitializeSDK for iOS
-  Future<bool> initializeSDK() async {
-    await _channel.invokeMethod("initializeSDK");
-    return true;
+  Future<bool> initializeSDK({
+    required String appId,
+    required String displayName,
+    required String clientToken,
+  }) async {
+    final bool result = await _channel.invokeMethod("initializeSDK", {
+      'appID': appId,
+      'displayName': displayName,
+      'clientToken': clientToken
+    });
+    return result;
   }
 
   /// Logs App Activate Event of FBSDK
   Future<bool> logActivateApp() async {
     await _channel.invokeMethod("activateApp");
     return true;
+  }
+
+  /// Sets a user [id] to associate with all app events.
+  /// This can be used to associate your own user id with the
+  /// app events logged from this instance of an application.
+  /// The user ID will be persisted between application instances.
+  Future<void> setUserID(String id) {
+    return _channel.invokeMethod<void>('setUserID', {"id": id});
+  }
+
+  /// Clears the currently set user id.
+  Future<void> clearUserID() {
+    return _channel.invokeMethod<void>('clearUserID');
   }
 
   /// Logs View Content Event of FBSDK with [currency] and [price]
@@ -188,7 +210,7 @@ class FlutterFacebookSdk {
   Future<bool> logEvent(
       {required String eventName,
       double? valueToSum,
-      dynamic? parameters}) async {
+      dynamic parameters}) async {
     final bool result = await _channel.invokeMethod("logEvent", {
       'eventName': eventName,
       'valueToSum': valueToSum,
@@ -204,77 +226,5 @@ class FlutterFacebookSdk {
     final bool result = await _channel
         .invokeMethod("setAdvertiserTracking", {"enabled": isEnabled});
     return result;
-  }
-
-  /// Logs Rated
-  Future<bool> logRated() async {
-    await _channel.invokeMethod("logRated");
-    return true;
-  }
-
-  /// Logs Donate
-  Future<bool> logDonate() async {
-    await _channel.invokeMethod("logDonate");
-    return true;
-  }
-
-  /// Logs Contact
-  Future<bool> logContact() async {
-    await _channel.invokeMethod("logContact");
-    return true;
-  }
-
-  /// Logs Refinement
-  Future<bool> logRefinement() async {
-    await _channel.invokeMethod("logRefinement");
-    return true;
-  }
-
-  /// Logs Care
-  Future<bool> logCare() async {
-    await _channel.invokeMethod("logCare");
-    return true;
-  }
-
-  /// Logs Subscribe
-  Future<bool> logSubscribe() async {
-    await _channel.invokeMethod("logSubscribe");
-    return true;
-  }
-
-  /// Logs Cash Fund
-  Future<bool> logCashFund() async {
-    await _channel.invokeMethod("logCashFund");
-    return true;
-  }
-
-  /// Logs Sell Vehicle
-  Future<bool> logSellVehicle() async {
-    await _channel.invokeMethod("logSellVehicle");
-    return true;
-  }
-
-  /// Logs Funding Services
-  Future<bool> logFundingServices() async {
-    await _channel.invokeMethod("logFundingServices");
-    return true;
-  }
-
-  /// Logs Add Provider
-  Future<bool> logAddProvider() async {
-    await _channel.invokeMethod("logAddProvider");
-    return true;
-  }
-
-  /// Logs Renew STNK
-  Future<bool> logRenewSTNK() async {
-    await _channel.invokeMethod("logRenewSTNK");
-    return true;
-  }
-
-  /// Logs My Vehicle
-  Future<bool> logMyVehicle() async {
-    await _channel.invokeMethod("logMyVehicle");
-    return true;
   }
 }
