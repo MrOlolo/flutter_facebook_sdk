@@ -15,7 +15,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _deepLinkUrl = 'Unknown';
+  String? _deepLinkUrl = 'Unknown';
   FlutterFacebookSdk? fbSdk;
   bool isAdvertisingTrackingEnabled = false;
 
@@ -45,7 +45,7 @@ class _MyAppState extends State<MyApp> {
       });
       deepLinkUrl = await fbSdk!.getDeepLinkUrl;
       setState(() {
-        _deepLinkUrl = deepLinkUrl!;
+        _deepLinkUrl = deepLinkUrl;
       });
     } on PlatformException {}
     if (!mounted) return;

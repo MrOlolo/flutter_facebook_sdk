@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.annotation.NonNull
-import bolts.AppLinks
 import com.facebook.FacebookSdk
 import com.facebook.appevents.AppEventsConstants
 import com.facebook.appevents.AppEventsLogger
@@ -84,7 +83,7 @@ class FlutterFacebookSdkPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
                 result.success("Android ${android.os.Build.VERSION.RELEASE}")
             }
             "getDeepLinkUrl" -> {
-                ar bundle = activityPluginBinding !!. activity . intent . getBundleExtra ("al_applink_data")
+                var bundle = activityPluginBinding!!.activity.intent.getBundleExtra("al_applink_data")
                 var deepLink: String? = null
                 if (bundle != null) {
                     var targetUrl = bundle.getString("target_url")
@@ -283,11 +282,21 @@ class FlutterFacebookSdkPlugin : FlutterPlugin, MethodCallHandler, StreamHandler
 
     }
 
-    override fun onNewIntent(intent: Intent?): Boolean {
+    override fun onNewIntent(intent: Intent): Boolean {
+        if (intent == null)
+            return false
+
         try {
-            // some code
-            deepLinkUrl = AppLinks.getTargetUrl(intent).toString()
-            eventSink!!.success(deepLinkUrl)
+            var bundle = intent.getBundleExtra("al_applink_data")
+            if (bundle != null) {
+                var targetUrl = bundle.getString("target_url")
+                if (targetUrl != null) {
+
+                    eventSink!!.success(targetUrl)
+                }
+
+            }
+
         } catch (e: NullPointerException) {
             // handler
             return false
