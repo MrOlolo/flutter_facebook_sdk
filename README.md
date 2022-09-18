@@ -1,24 +1,21 @@
 # Facebook Sdk For Flutter
 
-![GitHub code size](https://img.shields.io/github/languages/code-size/saadfarhan124/sadfarhan124-facebook_flutter_plugin)
-![GitHub followers](https://img.shields.io/github/followers/saadfarhan124?style=social)
-![GitHub contributors](https://img.shields.io/github/contributors/saadfarhan124/sadfarhan124-facebook_flutter_plugin)
-[![Linkedin](https://i.stack.imgur.com/gVE0j.png) LinkedIn](https://www.linkedin.com/in/saadfarhan124/)
-[![GitHub](https://i.stack.imgur.com/tskMh.png) GitHub](https://github.com/saadfarhan124/)
-
-`facebook_sdk_flutter` allows you to fetch `deep links`, `deferred deep links` and `log facebook app events`.
-
-This was created using the latest facebook SDK to include support for iOS 14. The plugin currently supports app events and deeps links for iOS and Android. 
+`facebook_sdk_flutter` allows you to fetch `deep links`, `deferred deep links`
+and `log facebook app events`.
 
 ## Prerequisites
 
-First of all, if you don't have one already, you must first create an app at Facebook developers: https://developers.facebook.com/
+First of all, if you don't have one already, you must first create an app at Facebook
+developers: https://developers.facebook.com/
 
-Get your app id (referred to as [APP_ID] below)
+Get your app id, client token and app name
+(referred to as [APP_ID], [APP_NAME], [CLIENT_TOKEN] below)
 
 # For IOS
 
-* If your code does not have CFBundleURLTypes, add the following just before the final </dict> element:
+* If your code does not have CFBundleURLTypes, add the following just before the final </dict>
+  element:
+
 ```
  <key>CFBundleURLTypes</key>
     <array>
@@ -31,37 +28,48 @@ Get your app id (referred to as [APP_ID] below)
     </array>
     <key>FacebookAppID</key>
     <string>[APP_ID]</string>
+    <key>FacebookClientToken</key>
+    <string>[CLIENT_TOKEN]</string>
     <key>FacebookDisplayName</key>
-    <string>[DISPLAY_NAME]</string>
-    <key>FacebookAutoLogAppEventsEnabled</key>
-    <true/>
-    <key>FacebookAdvertiserIDCollectionEnabled</key>
-    <true/>
+    <string>[APP_NAME]</string>
+	<key>FacebookAutoLogAppEventsEnabled</key>
+	<true/>
+	<key>FacebookAdvertiserIDCollectionEnabled</key>
+	<false/>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 ```
 
-# For Android 
+# For Android
 
-* Add the following to your strings.xml file 
+* Add the following to your strings.xml file
+
 ```
 
 <string name="facebook_app_id">[APP_ID]</string>
-<string name="fb_login_protocol_scheme">fb[APP_ID]</string>
+<string name="facebook_client_token">[CLIENT_TOKEN]</string>
 
 ```
 
-* Add the following meta tag to the application element in AndroidManifest.xml
-```
-
-<meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
+* Add the following `meta-data` to the `application` element in AndroidManifest.xml
 
 ```
 
-* Add the following element in AndroidManifest.xml
+<application android:label="@string/app_name" ...>
+    ...
+    <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/><meta-data android:name="com.facebook.sdk.ClientToken" android:value="@string/facebook_client_token"/>
+    ...
+</application>
+
+```
+
+* Add the following `uses-permission` element after `application` element in AndroidManifest.xml
+
 ```
 
 <uses-permission android:name="android.permission.INTERNET"/>
 
 ```
 
-* Don't forget to replace [APP_ID] with your Application ID
+* Don't forget to replace [APP_ID], [APP_NAME], [CLIENT_TOKEN] with your data from Facebook
 
